@@ -9,18 +9,18 @@ import java.util.List;
 
 public interface EventRepository  extends JpaRepository<Event, Integer> {
 
-    @Query("SELECT new com.aic.edudemo.vuebackend.domain.dto.EventListDto(" +
-           "p.picId, " +
-           "e.eventName, " +
-           "e.eventDate, " +
-           "e.eventTime, " +
-           "p.picEventTicket, " +
-           "p.picEventList, " +
-           "e.eventPerformer) " +
-           "FROM Pic p " +
-           "JOIN Event e ON p.eventId = e.eventId")
-    List<EventListDto> findAllEventPics();
 
+    @Query("SELECT new com.aic.edudemo.vuebackend.domain.dto.EventListDto(" +
+            "p.picId, " +
+            "e.eventName, " +
+            "e.eventDate, " +
+            "e.eventTime, " +
+            "p.picEventTicket, " +
+            "p.picEventList, " +
+            "e.eventPerformer) " +
+            "FROM Pic p " +
+            "JOIN Event e ON p.eventId = e.eventId")
+    List<EventListDto> findAllEventPics();
 
 
 }
