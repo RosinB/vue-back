@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: 🛠️ 取得最新程式碼
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: ☕ 設定 Java 環境
         uses: actions/setup-java@v3
@@ -32,7 +32,7 @@ jobs:
         run: mvn package -DskipTests
 
       - name: 📂 儲存 `.jar` 檔案
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: spring-boot-app
           path: target/*.jar

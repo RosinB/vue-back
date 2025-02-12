@@ -37,7 +37,7 @@ public class EventService {
         } catch (RuntimeException e) {
             log.error("資料庫抓取錯誤{}",e.getMessage());
             return Collections.emptyList();
-            
+
         }
     }
 
