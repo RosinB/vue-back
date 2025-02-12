@@ -3,8 +3,13 @@ spring:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
     username: sa
-    password:
+    password:  # H2 預設沒有密碼
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create-drop  # 每次測試重建資料庫
+    show-sql: true  # 顯示 SQL 語法
+  h2:
+    console:
+      enabled: true  # 啟用 H2 Console（可選）
+      path: /h2-console  # 預設 H2 Console 路徑
