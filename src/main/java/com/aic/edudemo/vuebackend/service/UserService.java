@@ -14,6 +14,7 @@ import com.aic.edudemo.vuebackend.utils.mapstruct.UserHistoryMapper;
 import com.aic.edudemo.vuebackend.utils.mapstruct.UserMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -35,6 +37,7 @@ import java.util.List;
 public class UserService {
     private static final String UPLOAD_DIR = "C:\\Users\\Rosin Huang\\Desktop\\vue-front\\client\\public\\img\\";
 
+    private final RedisTemplate<String ,Object> redisTemplate;
     private final ManageRepository manageRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -43,12 +46,13 @@ public class UserService {
     private final UserHistoryRepository userHistoryRepository;
 
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, ManageRepository manageRepository, UserHistoryMapper userHistoryMapper, UserHistoryRepository userHistoryRepository) {
+    public UserService(RedisTemplate<String ,Object>  redisTemplate,UserRepository userRepository, UserMapper userMapper, ManageRepository manageRepository, UserHistoryMapper userHistoryMapper, UserHistoryRepository userHistoryRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.manageRepository = manageRepository;
         this.userHistoryMapper = userHistoryMapper;
         this.userHistoryRepository = userHistoryRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     public String encryptPassword(String rawPassword) {
@@ -56,7 +60,17 @@ public class UserService {
     }
 
     public List<User> findAllUser() {
-        return userRepository.findAll();
+
+        String key="userAll:";
+        List<User> users=(List<User>) redisTemplate.opsForValue().get(key);
+        if(users == null) {
+            users=userRepository.findAll();
+            System.out.println("這是啥1123");
+            redisTemplate.opsForValue().set(key,users,10, TimeUnit.MINUTES);
+        }
+
+
+        return users;
     }
 
     @Transactional
