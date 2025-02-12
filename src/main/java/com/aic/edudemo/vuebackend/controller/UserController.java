@@ -5,12 +5,17 @@ import com.aic.edudemo.vuebackend.domain.dto.UserAdvancedDto;
 import com.aic.edudemo.vuebackend.domain.dto.UserDto;
 import com.aic.edudemo.vuebackend.domain.dto.UserManageDto;
 import com.aic.edudemo.vuebackend.domain.entity.User;
+import com.aic.edudemo.vuebackend.domain.entity.UserHistory;
 import com.aic.edudemo.vuebackend.service.UserService;
 import com.aic.edudemo.vuebackend.utils.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -85,12 +90,31 @@ public class UserController {
 
     @GetMapping("/manage/{userName}")
     ResponseEntity<ApiResponse<Object>> manageUser(@PathVariable String userName){
-        System.out.println(userName);
-        List<UserManageDto> dto = userService.getUserManageDto(userName);
+        UserManageDto dto = userService.getUserManageDto(userName);
         return ResponseEntity.ok(ApiResponse.success("success",dto));
     }
 
+    @PostMapping("/{userId}/avatar")
+    ResponseEntity<ApiResponse<Object>> updateUserAvatar(@PathVariable Integer userId,@RequestParam(value = "avatar" ,required = false) MultipartFile avatar){
+
+        userService.updateUserAvatar(userId,avatar);
+        return ResponseEntity.ok(ApiResponse.success("success",null));
+
+    }
 
 
+    @PostMapping("/manage/update/{userId}")
+    ResponseEntity<ApiResponse<Object>> updateUser(@PathVariable Integer userId,@RequestBody UserManageDto user){
+
+        userService.updateUserManageDto(user);
+        return ResponseEntity.ok(ApiResponse.success("success",null));
+
+    }
+
+    @GetMapping("/manage/history/{userId}")
+    ResponseEntity<ApiResponse<Object>> manageUserHistory(@PathVariable Integer userId,@PageableDefault(size = 5) Pageable pageable){
+        Page<UserHistory> dto=userService.getUserHistoryList(userId, pageable);
+        return ResponseEntity.ok(ApiResponse.success("success",dto));
+    }
 
 }

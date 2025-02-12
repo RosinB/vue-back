@@ -1,0 +1,38 @@
+name: Java CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ 取得最新程式碼
+        uses: actions/checkout@v3
+
+      - name: ☕ 設定 Java 環境
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 📦 下載相依套件
+        run: mvn clean install -DskipTests
+
+      - name: 🧪 執行測試
+        run: mvn test
+
+      - name: 🚀 打包 Spring Boot 應用
+        run: mvn package -DskipTests
+
+      - name: 📂 儲存 `.jar` 檔案
+        uses: actions/upload-artifact@v3
+        with:
+          name: spring-boot-app
+          path: target/*.jar

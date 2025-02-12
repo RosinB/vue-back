@@ -30,8 +30,8 @@ public class UserManageDto {
 
     private Boolean userIsVerified ;
 
-    private String userBio;        // 加入這個
-    private String userImgPath;    // 加入這個
+    private String userBio;
+    private String userImgPath;
 
 
 }

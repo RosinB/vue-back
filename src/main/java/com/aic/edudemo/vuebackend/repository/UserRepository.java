@@ -30,7 +30,8 @@ public interface UserRepository  extends JpaRepository<User, Integer> {
 
     List<User> findByUserEmailContaining(String userEmail);
 
-    Integer findUserIdByUserName(String userName);
+    @Query("select u.userId from User u where u.userName = :userName")
+    Integer findUserIdByUserName(@Param("userName") String userName);
 
     List<User> findByUserPhoneContaining(String userPhone);
 
@@ -73,6 +74,6 @@ public interface UserRepository  extends JpaRepository<User, Integer> {
             join Manage  m on u.userId = m.userId
             where u.userId = :userId
 """)
-    List<UserManageDto> findUserManageDto(@Param("userId") Integer userId);
+    UserManageDto findUserManageDto(@Param("userId") Integer userId);
 
 }

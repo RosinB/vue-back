@@ -2,8 +2,10 @@ package com.aic.edudemo.vuebackend.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -13,6 +15,8 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@DynamicUpdate  // ✅ 只更新有改變的欄位，沒設定的欄位不會被影響
 public class User {
 
     @Id

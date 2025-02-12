@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @Builder
+@DynamicUpdate
 public class Manage {
 
     @Id
@@ -28,7 +30,7 @@ public class Manage {
     @Column(name = "img")
     private String userImgPath;
 
-    @Column(name = "bto")
+    @Column(name = "bio")
     private String  userBio;
 
     @Column(name ="updated_at")
