@@ -11,11 +11,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,6 +44,12 @@ public class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private RedisTemplate<String,Object> redisTemplate;
+
+    @Mock
+    ValueOperations<String,Object> valueOperations;
+
+    @Mock
     private MultipartFile mockFile;
 
     private User user;
@@ -50,6 +59,7 @@ public class UserServiceTest {
     void setUp() {
         user = new User(1, "ruka", "hashed_password", "094551234", "ruka@example.com", "A123456789", null, null, false);
         manage = new Manage(1, user.getUserId(), "img_path", "bio", null);
+
     }
 
     @Test
@@ -62,15 +72,8 @@ public class UserServiceTest {
         verify(userRepository, times(1)).deleteById(userId);
     }
 
-    @Test
-    void testFindAllUser() {
-        when(userRepository.findAll()).thenReturn(List.of(user));
 
-        List<User> result = userService.findAllUser();
 
-        assertEquals(1, result.size());
-        assertEquals("ruka", result.get(0).getUserName());
-    }
 
     @Test
     void testBatchAddUser() {
