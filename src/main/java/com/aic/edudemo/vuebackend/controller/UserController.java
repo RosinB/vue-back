@@ -8,6 +8,10 @@ import com.aic.edudemo.vuebackend.domain.entity.User;
 import com.aic.edudemo.vuebackend.domain.entity.UserHistory;
 import com.aic.edudemo.vuebackend.service.UserService;
 import com.aic.edudemo.vuebackend.utils.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,100 +25,106 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping( "users")
+@RequestMapping("users")
 @RequiredArgsConstructor
+@Tag(name = "使用者管理", description = "提供使用者 CRUD 相關 API")
 public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "取得所有用戶", description = "此 API 回傳所有用戶資料")
     @GetMapping("/all")
-    ResponseEntity<ApiResponse<Object>> getAllUsers(){
-        return ResponseEntity.ok(ApiResponse.success("success",userService.findAllUser()));
+    ResponseEntity<ApiResponse<Object>> getAllUsers() {
+        return ResponseEntity.ok(ApiResponse.success("success", userService.findAllUser()));
     }
 
+    @Operation(summary = "用戶註冊", description = "使用者提供基本資訊進行註冊")
     @PostMapping("/register")
-    ResponseEntity<ApiResponse<Object>> postRegisterUser(@RequestBody UserDto user){
+    ResponseEntity<ApiResponse<Object>> postRegisterUser(@RequestBody UserDto user) {
         userService.registerUser(user);
-        return ResponseEntity.ok(ApiResponse.success("success",null));
+        return ResponseEntity.ok(ApiResponse.success("success", null));
     }
 
+    @Operation(summary = "更新使用者資料", description = "透過 ID 更新用戶的基本資訊")
     @PostMapping("/update")
-    ResponseEntity<ApiResponse<Object>> postUpdateUser(@RequestBody UserDto user){
-
+    ResponseEntity<ApiResponse<Object>> postUpdateUser(@RequestBody UserDto user) {
         userService.updateUser(user);
-        return ResponseEntity.ok(ApiResponse.success("success",null));
+        return ResponseEntity.ok(ApiResponse.success("success", null));
     }
 
+    @Operation(summary = "刪除用戶", description = "根據 userId 刪除指定的使用者")
     @PostMapping("/delete/{userId}")
-    ResponseEntity<ApiResponse<Object>> postDeleteUser(@PathVariable Integer userId){
+    ResponseEntity<ApiResponse<Object>> postDeleteUser(
+            @Parameter(description = "使用者 ID") @PathVariable Integer userId) {
         userService.deleteUser(userId);
-        return ResponseEntity.ok(ApiResponse.success("success",null));
+        return ResponseEntity.ok(ApiResponse.success("success", null));
     }
 
-
-
+    @Operation(summary = "搜尋用戶", description = "根據不同條件（名稱、郵件、手機號碼）查詢使用者")
     @GetMapping("/search/")
-    ResponseEntity<ApiResponse<Object>> searchUser(@RequestParam String type,@RequestParam String keyword){
-
-        List<User> user =userService.searchUser(type,keyword);
-        return ResponseEntity.ok(ApiResponse.success("success",user));
-
+    ResponseEntity<ApiResponse<Object>> searchUser(
+            @Parameter(description = "查詢類型，如 userName, userEmail, userPhone") @RequestParam String type,
+            @Parameter(description = "關鍵字") @RequestParam String keyword) {
+        List<User> user = userService.searchUser(type, keyword);
+        return ResponseEntity.ok(ApiResponse.success("success", user));
     }
 
+    @Operation(summary = "根據生日範圍搜尋用戶", description = "提供生日區間，回傳符合條件的使用者")
     @GetMapping("/search/birthdate")
     ResponseEntity<ApiResponse<Object>> searchUserBirthdate(
-            @RequestParam("from")String from,
-            @RequestParam("to")String to){
-
-        List<User> user =userService.searchUserByBirthdate(from,to);
-        return ResponseEntity.ok(ApiResponse.success("success",user));
+            @Parameter(description = "起始日期（yyyy-MM-dd）") @RequestParam("from") String from,
+            @Parameter(description = "結束日期（yyyy-MM-dd）") @RequestParam("to") String to) {
+        List<User> user = userService.searchUserByBirthdate(from, to);
+        return ResponseEntity.ok(ApiResponse.success("success", user));
     }
 
+    @Operation(summary = "進階搜尋用戶", description = "根據 UserAdvancedDto 內的條件進行多層次搜尋")
     @PostMapping("/search/advanced")
-    ResponseEntity<ApiResponse<Object>> searchUserAdvanced(@RequestBody UserAdvancedDto user){
-
-        List<User> users =userService.searchUserAdvanced(user);
-
-        return ResponseEntity.ok(ApiResponse.success("success",users));
+    ResponseEntity<ApiResponse<Object>> searchUserAdvanced(@RequestBody UserAdvancedDto user) {
+        List<User> users = userService.searchUserAdvanced(user);
+        return ResponseEntity.ok(ApiResponse.success("success", users));
     }
 
-
+    @Operation(summary = "批量新增用戶", description = "提供多個 User 物件，一次新增多筆使用者資料")
     @PostMapping("/batchAddUser")
-    ResponseEntity<ApiResponse<Object>> batchAddUser(@RequestBody List<User> users){
-        log.info("batchAddUser:{}",users);
+    ResponseEntity<ApiResponse<Object>> batchAddUser(@RequestBody List<User> users) {
+        log.info("batchAddUser:{}", users);
         userService.batchAddUser(users);
-        return ResponseEntity.ok(ApiResponse.success("success",null));
-
-
+        return ResponseEntity.ok(ApiResponse.success("success", null));
     }
 
+    @Operation(summary = "管理用戶資料", description = "根據使用者名稱取得 UserManageDto")
     @GetMapping("/manage/{userName}")
-    ResponseEntity<ApiResponse<Object>> manageUser(@PathVariable String userName){
+    ResponseEntity<ApiResponse<Object>> manageUser(
+            @Parameter(description = "使用者名稱") @PathVariable String userName) {
         UserManageDto dto = userService.getUserManageDto(userName);
-        return ResponseEntity.ok(ApiResponse.success("success",dto));
+        return ResponseEntity.ok(ApiResponse.success("success", dto));
     }
 
+    @Operation(summary = "更新用戶頭像", description = "透過 MultipartFile 上傳使用者頭像")
     @PostMapping("/{userId}/avatar")
-    ResponseEntity<ApiResponse<Object>> updateUserAvatar(@PathVariable Integer userId,@RequestParam(value = "avatar" ,required = false) MultipartFile avatar){
-
-        userService.updateUserAvatar(userId,avatar);
-        return ResponseEntity.ok(ApiResponse.success("success",null));
-
+    ResponseEntity<ApiResponse<Object>> updateUserAvatar(
+            @Parameter(description = "使用者 ID") @PathVariable Integer userId,
+            @Parameter(description = "上傳的頭像") @RequestParam(value = "avatar", required = false) MultipartFile avatar) {
+        userService.updateUserAvatar(userId, avatar);
+        return ResponseEntity.ok(ApiResponse.success("success", null));
     }
 
-
+    @Operation(summary = "管理用戶資料更新", description = "更新 UserManageDto 內的資料")
     @PostMapping("/manage/update/{userId}")
-    ResponseEntity<ApiResponse<Object>> updateUser(@PathVariable Integer userId,@RequestBody UserManageDto user){
-
+    ResponseEntity<ApiResponse<Object>> updateUser(
+            @Parameter(description = "使用者 ID") @PathVariable Integer userId,
+            @RequestBody UserManageDto user) {
         userService.updateUserManageDto(user);
-        return ResponseEntity.ok(ApiResponse.success("success",null));
-
+        return ResponseEntity.ok(ApiResponse.success("success", null));
     }
 
+    @Operation(summary = "取得用戶歷史記錄", description = "查詢使用者操作歷史，可分頁查詢")
     @GetMapping("/manage/history/{userId}")
-    ResponseEntity<ApiResponse<Object>> manageUserHistory(@PathVariable Integer userId,@PageableDefault(size = 5) Pageable pageable){
-        Page<UserHistory> dto=userService.getUserHistoryList(userId, pageable);
-        return ResponseEntity.ok(ApiResponse.success("success",dto));
+    ResponseEntity<ApiResponse<Object>> manageUserHistory(
+            @Parameter(description = "使用者 ID") @PathVariable Integer userId,
+            @PageableDefault(size = 5) Pageable pageable) {
+        Page<UserHistory> dto = userService.getUserHistoryList(userId, pageable);
+        return ResponseEntity.ok(ApiResponse.success("success", dto));
     }
-
 }
