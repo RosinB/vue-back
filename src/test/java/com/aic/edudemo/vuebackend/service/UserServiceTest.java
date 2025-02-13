@@ -1,7 +1,7 @@
 package com.aic.edudemo.vuebackend.service;
 
 import com.aic.edudemo.vuebackend.domain.entity.Manage;
-import com.aic.edudemo.vuebackend.domain.entity.User;
+import com.aic.edudemo.vuebackend.domain.entity.Users;
 import com.aic.edudemo.vuebackend.repository.ManageRepository;
 import com.aic.edudemo.vuebackend.repository.UserRepository;
 import com.aic.edudemo.vuebackend.utils.mapstruct.UserMapper;
@@ -52,12 +52,12 @@ public class UserServiceTest {
     @Mock
     private MultipartFile mockFile;
 
-    private User user;
+    private Users user;
     private Manage manage;
 
     @BeforeEach
     void setUp() {
-        user = new User(1, "ruka", "hashed_password", "094551234", "ruka@example.com", "A123456789", null, null, false);
+        user = new Users(1, "ruka", "hashed_password", "094551234", "ruka@example.com", "A123456789", null, null, false);
         manage = new Manage(1, user.getUserId(), "img_path", "bio", null);
 
     }
@@ -77,7 +77,7 @@ public class UserServiceTest {
 
     @Test
     void testBatchAddUser() {
-        List<User> users = Arrays.asList(user, user);
+        List<Users> users = Arrays.asList(user, user);
         when(userRepository.saveAll(anyList())).thenReturn(users);
 
         userService.batchAddUser(users);
@@ -101,20 +101,20 @@ public class UserServiceTest {
     void testSearchUser() {
         when(userRepository.findByUserNameContaining("ruka")).thenReturn(List.of(user));
 
-        List<User> result = userService.searchUser("userName", "ruka");
+        List<Users> result = userService.searchUser("userName", "ruka");
 
         assertEquals(1, result.size());
         assertEquals("ruka", result.get(0).getUserName());
 
         // ✅ 測試搜尋 Email
         when(userRepository.findByUserEmailContaining("ruka@example.com")).thenReturn(List.of(user));
-        List<User> emailResult = userService.searchUser("userEmail", "ruka@example.com");
+        List<Users> emailResult = userService.searchUser("userEmail", "ruka@example.com");
         assertEquals(1, emailResult.size());
         assertEquals("ruka@example.com", emailResult.get(0).getUserEmail());
 
         // ✅ 測試搜尋手機號碼
         when(userRepository.findByUserPhoneContaining("094551234")).thenReturn(List.of(user));
-        List<User> phoneResult = userService.searchUser("userPhone", "094551234");
+        List<Users> phoneResult = userService.searchUser("userPhone", "094551234");
         assertEquals(1, phoneResult.size());
         assertEquals("094551234", phoneResult.get(0).getUserPhone());
     }
