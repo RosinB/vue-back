@@ -18,26 +18,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 啟用 CORS
-                .csrf(csrf -> csrf.disable()) // ✅ 關閉 CSRF (如果不使用 Token)
+                .csrf(csrf -> csrf.disable()) // ✅ 關閉 CSRF（如果使用 JWT）
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll() // ✅ 允許 CORS 的 API
-                        .anyRequest().authenticated()
-                );
+                        .requestMatchers("/users/**").permitAll() // ✅ 允許 `/users/**` API 被 API Gateway 訪問
+                        .anyRequest().authenticated() // 🔒 其他 API 仍需驗證
+                )
+                .formLogin(form -> form.disable()) // ❌ 停用 `/login` 自動跳轉
+                .httpBasic(httpBasic -> httpBasic.disable()); // ❌ 停用 HTTP Basic 驗證
 
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:9000")); // ✅ 允許的前端 URL
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // ✅ 允許的方法
-        configuration.setAllowCredentials(true); // ✅ 允許攜帶 Cookie
-        configuration.setAllowedHeaders(Arrays.asList("*")); // ✅ 允許所有 Header
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }

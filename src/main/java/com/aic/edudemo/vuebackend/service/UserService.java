@@ -5,8 +5,8 @@ import com.aic.edudemo.vuebackend.domain.dto.UserAdvancedDto;
 import com.aic.edudemo.vuebackend.domain.dto.UserDto;
 import com.aic.edudemo.vuebackend.domain.dto.UserManageDto;
 import com.aic.edudemo.vuebackend.domain.entity.Manage;
-import com.aic.edudemo.vuebackend.domain.entity.User;
 import com.aic.edudemo.vuebackend.domain.entity.UserHistory;
+import com.aic.edudemo.vuebackend.domain.entity.Users;
 import com.aic.edudemo.vuebackend.repository.ManageRepository;
 import com.aic.edudemo.vuebackend.repository.UserHistoryRepository;
 import com.aic.edudemo.vuebackend.repository.UserRepository;
@@ -59,13 +59,12 @@ public class UserService {
         return passwordEncoder.encode(rawPassword);
     }
 
-    public List<User> findAllUser() {
+    public List<Users> findAllUser() {
 
         String key="userAll:";
-        List<User> users=(List<User>) redisTemplate.opsForValue().get(key);
+        List<Users> users=(List<Users>) redisTemplate.opsForValue().get(key);
         if(users == null) {
             users=userRepository.findAll();
-            System.out.println("這是啥1123");
             redisTemplate.opsForValue().set(key,users,10, TimeUnit.MINUTES);
         }
 
@@ -75,10 +74,11 @@ public class UserService {
 
     @Transactional
     public void registerUser(UserDto user) {
+        System.out.println("註冊的密碼是:"+user.getUserPwd());
         String encryptedPwd = encryptPassword(user.getUserPwd());
         user.setUserPwdHash(encryptedPwd);
-        User userEntity = userMapper.toEntity(user);
-        User userData =  userRepository.save(userEntity);
+        Users userEntity = userMapper.toEntity(user);
+        Users userData =  userRepository.save(userEntity);
         Manage manage = Manage.builder().
                 userId(userData.getUserId()).
                 userBio(" ").
@@ -95,7 +95,7 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    public List<User> searchUser(String type, String keyword) {
+    public List<Users> searchUser(String type, String keyword) {
         return switch (type) {
             case "all" -> userRepository.findUserByAllLike(keyword);
             case "userName" -> userRepository.findByUserNameContaining(keyword);
@@ -106,14 +106,14 @@ public class UserService {
         };
     }
 
-    public List<User> searchUserByBirthdate(String from, String to) {
+    public List<Users> searchUserByBirthdate(String from, String to) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         LocalDate fromDate = LocalDate.parse(from, formatter);
         LocalDate toDate = LocalDate.parse(to, formatter);
         return userRepository.findByUserBirthDateBetween(fromDate, toDate);
     }
 
-    public List<User> searchUserAdvanced(UserAdvancedDto dto) {
+    public List<Users> searchUserAdvanced(UserAdvancedDto dto) {
 
         return userRepository.findByAdvancedSearch(
                 dto.getUserName(),
@@ -127,11 +127,11 @@ public class UserService {
     }
 
     @Transactional
-    public void batchAddUser(List<User> users) {
+    public void batchAddUser(List<Users> users) {
         users.forEach(user -> {
             user.setUserPwdHash(encryptPassword(user.getUserPwdHash()));
         });
-        List<User> userList=userRepository.saveAll(users);
+        List<Users> userList=userRepository.saveAll(users);
         List<Manage> manageList=userList.stream().map(
                 user -> Manage.builder().
                     userId(user.getUserId()).
@@ -176,8 +176,8 @@ public class UserService {
     public UserManageDto updateUserManageDto(UserManageDto userManageDto) {
         UserHistory his=userHistoryMapper.toEntity(userManageDto);
         userHistoryRepository.save(his);
-        User userData=userRepository.findById(userManageDto.getUserId()).get();
-        User user = User.builder().
+        Users userData=userRepository.findById(userManageDto.getUserId()).get();
+        Users user = Users.builder().
                 userName(userManageDto.getUserName()).
                 userEmail(userManageDto.getUserEmail()).
                 userPhone(userManageDto.getUserPhone()).

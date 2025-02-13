@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @DynamicUpdate  // ✅ 只更新有改變的欄位，沒設定的欄位不會被影響
-public class User {
+public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

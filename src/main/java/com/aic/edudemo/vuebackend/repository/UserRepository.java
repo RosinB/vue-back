@@ -1,7 +1,7 @@
 package com.aic.edudemo.vuebackend.repository;
 
 import com.aic.edudemo.vuebackend.domain.dto.UserManageDto;
-import com.aic.edudemo.vuebackend.domain.entity.User;
+import com.aic.edudemo.vuebackend.domain.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface UserRepository  extends JpaRepository<User, Integer> {
+public interface UserRepository  extends JpaRepository<Users, Integer> {
 
     @Query(value = """
                 select * 
@@ -23,21 +23,21 @@ public interface UserRepository  extends JpaRepository<User, Integer> {
                    or   user_idcard like %:value%
           """, nativeQuery = true
     )
-     List<User> findUserByAllLike(@Param("value") String value);
+     List<Users> findUserByAllLike(@Param("value") String value);
 
 
-    List<User> findByUserNameContaining(String userName);
+    List<Users> findByUserNameContaining(String userName);
 
-    List<User> findByUserEmailContaining(String userEmail);
+    List<Users> findByUserEmailContaining(String userEmail);
 
-    @Query("select u.userId from User u where u.userName = :userName")
+    @Query("select u.userId from Users u where u.userName = :userName")
     Integer findUserIdByUserName(@Param("userName") String userName);
 
-    List<User> findByUserPhoneContaining(String userPhone);
+    List<Users> findByUserPhoneContaining(String userPhone);
 
-    List<User> findByUserIdCardContaining(String userIdCard);
+    List<Users> findByUserIdCardContaining(String userIdCard);
 
-    List<User> findByUserBirthDateBetween(LocalDate userBirthDateAfter, LocalDate userBirthDateBefore);
+    List<Users> findByUserBirthDateBetween(LocalDate userBirthDateAfter, LocalDate userBirthDateBefore);
 
 
     @Query(value = """
@@ -55,7 +55,7 @@ public interface UserRepository  extends JpaRepository<User, Integer> {
         or (user_birth_date between :userBirthDateStart and :userBirthDateEnd)
     )
     """, nativeQuery = true)
-    List<User> findByAdvancedSearch(
+    List<Users> findByAdvancedSearch(
             @Param("userName") String userName,
             @Param("userPhone") String userPhone,
             @Param("userEmail") String userEmail,
@@ -70,10 +70,14 @@ public interface UserRepository  extends JpaRepository<User, Integer> {
             select  new com.aic.edudemo.vuebackend.domain.dto.UserManageDto(
             u.userId ,u.userName,u.userPhone ,u.userEmail,
             u.userIdCard,u.userBirthDate,u.userIsVerified,m.userBio,m.userImgPath)
-            from User u
+            from Users u
             join Manage  m on u.userId = m.userId
             where u.userId = :userId
 """)
     UserManageDto findUserManageDto(@Param("userId") Integer userId);
+
+    @Query("select u.userPwdHash from Users u where u.userName =:userName")
+    String findUserPwdHashByUserName(@Param("userName") String userName);
+
 
 }
