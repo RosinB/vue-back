@@ -31,7 +31,9 @@ public class UserManageDto {
     private Boolean userIsVerified ;
 
     private String userBio;
+
     private String userImgPath;
+
 
 
 }

@@ -34,5 +34,5 @@ public class UserDto {
 
     private LocalDate userBirthDate;
 
-
+    private String userType;
 }

@@ -40,6 +40,8 @@ public interface UserRepository  extends JpaRepository<Users, Integer> {
     List<Users> findByUserBirthDateBetween(LocalDate userBirthDateAfter, LocalDate userBirthDateBefore);
 
 
+
+
     @Query(value = """
     select *
     from users

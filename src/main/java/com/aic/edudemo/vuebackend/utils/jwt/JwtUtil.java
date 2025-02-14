@@ -5,10 +5,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class JwtUtil {
     private static final String SECRET = "mySuperSecretKeyForJWT1234567890123456"; // 必須至少 32 bytes
@@ -16,11 +13,13 @@ public class JwtUtil {
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 小時
 
 
-    public static String generateToken(String username,Integer userId) {
+    public static String generateToken(String username, Integer userId, List<String> roles) {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("userName", username);
+        claims.put("roles", roles);
+
 
         return Jwts.builder()
                 .setSubject(username)

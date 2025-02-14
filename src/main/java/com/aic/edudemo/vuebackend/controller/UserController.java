@@ -1,6 +1,7 @@
 package com.aic.edudemo.vuebackend.controller;
 
 
+import com.aic.edudemo.vuebackend.domain.dto.ReviewRequestDto;
 import com.aic.edudemo.vuebackend.domain.dto.UserAdvancedDto;
 import com.aic.edudemo.vuebackend.domain.dto.UserDto;
 import com.aic.edudemo.vuebackend.domain.dto.UserManageDto;
@@ -8,6 +9,7 @@ import com.aic.edudemo.vuebackend.domain.entity.UserHistory;
 import com.aic.edudemo.vuebackend.domain.entity.Users;
 import com.aic.edudemo.vuebackend.service.LoginService;
 import com.aic.edudemo.vuebackend.service.UserService;
+import com.aic.edudemo.vuebackend.service.VerificationService;
 import com.aic.edudemo.vuebackend.utils.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,9 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,7 +36,7 @@ public class UserController {
 
     private final UserService userService;
     private final LoginService loginService;
-
+    private final VerificationService verificationService;
 
     @Operation(summary = "取得所有用戶", description = "此 API 回傳所有用戶資料")
     @GetMapping("/all")
@@ -139,8 +138,7 @@ public class UserController {
 
     @GetMapping("/login")
     ResponseEntity<ApiResponse<Object>> loginUser(@RequestParam("userName") String userName,
-                                                  @RequestParam("passWord") String passWord
-                                                  ){
+                                                  @RequestParam("passWord") String passWord){
         try{
             String token =loginService.loginUser(userName, passWord);
             return ResponseEntity.ok(ApiResponse.success("success", token));
@@ -149,5 +147,55 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(401,"登入失敗",null));
         }
     }
+    @GetMapping("/verified")
+    ResponseEntity<ApiResponse<Object>> UserVerified(
+            @RequestHeader("X-User-Id") Integer userId,@RequestHeader("X-User-Name") String userName) {
+
+        verificationService.createVerificationRequest(userName, userId);
+
+        return ResponseEntity.ok(ApiResponse.success("success", null));
+
+    }
+
+    @GetMapping("/verified/status")
+    ResponseEntity<ApiResponse<Object>> UserVerifiedStatus(
+            @RequestHeader("X-User-Id") Integer userId,@RequestHeader("X-User-Name") String userName) {
+
+
+        return ResponseEntity.ok(ApiResponse.success("success",  verificationService.getVerifiedStatus(userId)));
+
+    }
+
+    @GetMapping("/verified/all-pending")
+    ResponseEntity<ApiResponse<Object>> UserVerifiedAll(@RequestHeader("X-User-Id") Integer userId,
+                                                        @RequestHeader("X-User-Name") String userName,
+                                                        @RequestHeader("X-User-Roles") List<String> roles)
+    {
+
+
+        return  ResponseEntity.ok(ApiResponse.success("successs",verificationService.getVerifiedList()));
+    }
+
+    @PostMapping("/verified/review/{requestId}")
+    ResponseEntity<ApiResponse<Object>> UserVerifiedReview(@PathVariable Integer requestId, @RequestHeader("X-User-Id") Integer userId,
+                                                           @RequestHeader("X-User-Name") String userName,
+                                                           @RequestHeader("X-User-Roles") List<String> roles,
+                                                           @RequestBody ReviewRequestDto reviewRequestDto) {
+
+        System.out.println(requestId+"+"+userId+"+"+userName+"+"+roles+"+"+reviewRequestDto);
+
+        verificationService.VerifiedReview(userName,userId,requestId,roles.get(0),reviewRequestDto);
+        return  ResponseEntity.ok(ApiResponse.success("successs",null));
+
+    }
+
+    @GetMapping("/verified/history")
+    ResponseEntity<ApiResponse<Object>> UserVerifiedHistory(){
+
+
+        return ResponseEntity.ok(ApiResponse.success("success",verificationService.getAllVerifiedHistory()));
+
+    }
+
 
 }
